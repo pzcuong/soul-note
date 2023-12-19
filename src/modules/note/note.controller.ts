@@ -58,7 +58,7 @@ export class NoteController {
     @ResponseMessage('Delete note successfully!')
     public async deleteDraftNote(
         @Client() clientData: ClientData,
-        @Param('id') id: ObjectId,
+        @Param('id') id: string,
     ) {
         return await this.noteService.deleteNote(clientData, id);
     }

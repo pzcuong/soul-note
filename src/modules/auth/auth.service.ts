@@ -28,7 +28,6 @@ export class AuthService {
         if (existUser) throw new BadRequestException('User already exist!');
 
         const password = this.encryptionsUtil.hash(payload.password);
-        console.log(password);
 
         const createResult = await this.userModel.repository.save({
             email: payload.email,
@@ -36,21 +35,22 @@ export class AuthService {
             role: user_role.USER,
             full_name: payload.full_name,
             username: payload.username,
+            date_of_birth: payload.date_of_birth,
         });
 
-        console.log(createResult);
-
-        if (!createResult.id || !createResult.role)
+        if (!createResult._id || !createResult.role)
             throw new NotFoundException();
 
         const accessToken = this.encryptionsUtil.signAccessToken({
-            id: createResult.id,
-            sub: createResult.id,
+            id: createResult._id,
+            sub: createResult._id,
             role: createResult.role as user_role,
             username: createResult.username,
         });
 
-        return { accessToken };
+        delete createResult.password;
+
+        return { accessToken, ...createResult };
     }
 
     public async login(payload: LoginDto) {
@@ -58,7 +58,7 @@ export class AuthService {
             where: {
                 email: payload.email,
             },
-            select: ['id', 'password', 'role', 'username'],
+            select: ['_id', 'password', 'role', 'username', 'date_of_birth'],
         });
 
         if (!user) throw new UnauthorizedException('User does not exist!');
@@ -69,8 +69,8 @@ export class AuthService {
         );
 
         const accessToken = this.encryptionsUtil.signAccessToken({
-            id: user.id,
-            sub: user.id,
+            id: user._id,
+            sub: user._id,
             role: user.role as user_role,
             username: user.username,
         });

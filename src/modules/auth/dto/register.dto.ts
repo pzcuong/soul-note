@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsDateString, IsEmail, IsString, Length } from 'class-validator';
 
 export class RegisterDto {
     @IsEmail({}, { message: 'Invalid email format' })
@@ -19,4 +19,7 @@ export class RegisterDto {
         message: 'Display name must be between 3 and 20 characters',
     })
     username: string;
+
+    @IsDateString()
+    date_of_birth: Date;
 }

@@ -8,7 +8,7 @@ import {
 
 export class CommonEntity {
     @ObjectIdColumn()
-    id: ObjectId;
+    _id: ObjectId;
 
     @CreateDateColumn({ name: 'created_at' })
     created_at?: Date;

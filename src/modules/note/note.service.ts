@@ -3,7 +3,8 @@ import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { NoteModel } from 'src/models/note.model';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { post_status } from 'src/commons/role';
-import { ObjectId } from 'typeorm';
+import { ObjectId } from 'mongodb';
+import * as mongodb from 'mongodb';
 
 @Injectable()
 export class NoteService {
@@ -13,7 +14,7 @@ export class NoteService {
         const note = await this.noteModel.repository.findOne({
             where: {
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
                 status: post_status.DRAFT,
             },
@@ -29,7 +30,7 @@ export class NoteService {
         const note = await this.noteModel.repository.find({
             where: {
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
             },
             order: {
@@ -44,7 +45,7 @@ export class NoteService {
         let isExistDraft = await this.noteModel.repository.findOne({
             where: {
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
                 status: post_status.DRAFT,
             },
@@ -57,7 +58,7 @@ export class NoteService {
             isExistDraft = await this.noteModel.repository.save({
                 ...payload,
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
                 status: post_status.DRAFT,
             });
@@ -74,7 +75,7 @@ export class NoteService {
         const note = await this.noteModel.repository.findOne({
             where: {
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
                 status: post_status.DRAFT,
             },
@@ -87,7 +88,7 @@ export class NoteService {
 
         await this.noteModel.repository.update(
             {
-                id: note.id,
+                _id: note._id,
             },
             {
                 status: post_status.PUBLIC,
@@ -104,7 +105,7 @@ export class NoteService {
     ) {
         const note = await this.noteModel.repository.findOne({
             where: {
-                id: noteId,
+                _id: new mongodb.ObjectId(noteId),
                 user: {
                     id: clientData.id,
                 },
@@ -121,23 +122,20 @@ export class NoteService {
         return updateResult;
     }
 
-    async deleteNote(
-        clientData: ClientData,
-        noteId: ObjectId,
-    ): Promise<boolean> {
+    async deleteNote(clientData: ClientData, noteId: string): Promise<boolean> {
         const note = await this.noteModel.repository.findOne({
             where: {
-                id: noteId,
+                _id: new mongodb.ObjectId(noteId),
                 user: {
-                    id: clientData.id,
+                    _id: clientData.id,
                 },
             },
         });
 
         if (!note) throw new Error('Note not found');
 
-        await this.noteModel.repository.softDelete({
-            id: noteId,
+        await this.noteModel.repository.delete({
+            _id: note._id,
         });
 
         return true;
