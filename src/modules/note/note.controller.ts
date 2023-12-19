@@ -7,6 +7,7 @@ import {
     HttpStatus,
     Param,
     Post,
+    UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
 import { NoteService } from './note.service';
@@ -14,8 +15,8 @@ import { ResTransformInterceptor } from 'src/interceptors/response.interceptor';
 import { ResponseMessage } from 'src/decorators/response_message.decorator';
 import { Client } from 'src/commons/decorators';
 import { ClientData } from 'src/decorators/get_current_user.decorator';
-import { ObjectId } from 'typeorm';
 import { CreateNoteDto } from './dto/create-note.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('note')
 @UseInterceptors(ResTransformInterceptor)
@@ -37,13 +38,19 @@ export class NoteController {
     }
 
     @Post()
+    @UseInterceptors(FileInterceptor('attachFile'))
     @HttpCode(HttpStatus.CREATED)
     @ResponseMessage('Create/update note successfully!')
     public async createDraftNote(
         @Client() clientData: ClientData,
         @Body() payload: CreateNoteDto,
+        @UploadedFile() file: Express.Multer.File,
     ) {
-        return await this.noteService.createDraftNote(clientData, payload);
+        return await this.noteService.createDraftNote(
+            clientData,
+            payload,
+            file,
+        );
     }
 
     @Post('/publish')

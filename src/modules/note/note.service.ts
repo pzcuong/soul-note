@@ -5,10 +5,14 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { post_status } from 'src/commons/role';
 import { ObjectId } from 'mongodb';
 import * as mongodb from 'mongodb';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class NoteService {
-    constructor(private readonly noteModel: NoteModel) {}
+    constructor(
+        private readonly noteModel: NoteModel,
+        private readonly cloudinaryService: CloudinaryService,
+    ) {}
 
     async getDraftNoteByUserId(clientData: ClientData) {
         const note = await this.noteModel.repository.findOne({
@@ -41,7 +45,11 @@ export class NoteService {
         return note;
     }
 
-    async createDraftNote(clientData: ClientData, payload: CreateNoteDto) {
+    async createDraftNote(
+        clientData: ClientData,
+        payload: CreateNoteDto,
+        file?: Express.Multer.File,
+    ) {
         let isExistDraft = await this.noteModel.repository.findOne({
             where: {
                 user: {
@@ -63,9 +71,16 @@ export class NoteService {
                 status: post_status.DRAFT,
             });
 
+        const uploadResult = file
+            ? await this.cloudinaryService.uploadFile(file).then((result) => {
+                  return result.secure_url;
+              })
+            : isExistDraft.image;
+
         const createResult = await this.noteModel.repository.save({
             ...isExistDraft,
             ...payload,
+            image: uploadResult,
         });
 
         return createResult;
