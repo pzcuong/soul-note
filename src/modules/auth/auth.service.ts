@@ -20,9 +20,14 @@ export class AuthService {
 
     public async register(payload: RegisterDto) {
         const existUser = await this.userModel.repository.findOne({
-            where: {
-                email: payload.email,
-            },
+            where: [
+                {
+                    email: payload.email,
+                },
+                {
+                    username: payload.username,
+                },
+            ],
         });
 
         if (existUser) throw new BadRequestException('User already exist!');
