@@ -9,10 +9,10 @@ export class User extends CommonEntity {
     @Column({ name: 'full_name', type: 'string', length: 50 })
     full_name: string;
 
-    @Column({ name: 'username', type: 'string', length: 50 })
+    @Column({ name: 'username', type: 'string', length: 50, unique: true })
     username: string;
 
-    @Column({ name: 'email', type: 'string', length: 50 })
+    @Column({ name: 'email', type: 'string', length: 50, unique: true })
     email: string;
 
     @Column({ name: 'password', type: 'string' })

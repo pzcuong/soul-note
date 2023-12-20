@@ -20,17 +20,17 @@ export class AuthService {
 
     public async register(payload: RegisterDto) {
         const existUser = await this.userModel.repository.findOne({
-            where: [
-                {
-                    email: payload.email,
-                },
-                {
-                    username: payload.username,
-                },
-            ],
+            where: {
+                $or: [{ email: payload.email }, { username: payload.username }],
+            },
         });
 
-        if (existUser) throw new BadRequestException('User already exist!');
+        if (existUser) {
+            if (existUser.email === payload.email)
+                throw new BadRequestException('Email already exists!');
+            if (existUser.username === payload.username)
+                throw new BadRequestException('Username already exists!');
+        }
 
         const password = this.encryptionsUtil.hash(payload.password);
 
@@ -63,7 +63,14 @@ export class AuthService {
             where: {
                 email: payload.email,
             },
-            select: ['_id', 'password', 'role', 'username', 'date_of_birth'],
+            select: [
+                '_id',
+                'password',
+                'role',
+                'username',
+                'date_of_birth',
+                'full_name',
+            ],
         });
 
         if (!user) throw new UnauthorizedException('User does not exist!');
