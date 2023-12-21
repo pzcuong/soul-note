@@ -104,6 +104,9 @@ export class NoteService {
             },
         });
 
+        console.log(isExistDraft);
+        console.log(file);
+
         if (!isExistDraft)
             isExistDraft = await this.noteModel.repository.save({
                 ...payload,
@@ -115,9 +118,12 @@ export class NoteService {
 
         const uploadResult = file
             ? await this.cloudinaryService.uploadFile(file).then((result) => {
+                  console.log(result);
                   return result.secure_url;
               })
             : isExistDraft.image;
+
+        console.log(uploadResult);
 
         const createResult = await this.noteModel.repository.save({
             ...isExistDraft,
