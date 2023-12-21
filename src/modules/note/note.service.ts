@@ -77,6 +77,7 @@ export class NoteService {
                 user: {
                     _id: clientData.id,
                 },
+                status: post_status.PUBLIC,
             },
             order: {
                 created_at: 'DESC',
@@ -119,9 +120,9 @@ export class NoteService {
             : isExistDraft.image;
 
         const createResult = await this.noteModel.repository.save({
+            image: uploadResult,
             ...isExistDraft,
             ...payload,
-            image: uploadResult,
         });
 
         return createResult;
