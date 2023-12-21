@@ -1,6 +1,6 @@
 import { CommonEntity } from 'src/commons/entities';
 import { post_status } from 'src/commons/role';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, ObjectId } from 'typeorm';
 import { User } from './user.entity';
 import { UserFavouriteNote } from './user-favourite-note.entity';
 
@@ -25,6 +25,8 @@ export class Note extends CommonEntity {
 
     @ManyToOne(() => User, (user) => user.note)
     user: User;
+    @Column({ name: 'user_id', type: 'string' })
+    user_id: ObjectId;
 
     @ManyToOne(
         () => UserFavouriteNote,

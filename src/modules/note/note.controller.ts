@@ -6,7 +6,9 @@ import {
     HttpCode,
     HttpStatus,
     Param,
+    Patch,
     Post,
+    Query,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -17,20 +19,21 @@ import { Client } from 'src/commons/decorators';
 import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { GetNoteDataQuery } from './dto/query-param.dto';
 
 @Controller('note')
 @UseInterceptors(ResTransformInterceptor)
 export class NoteController {
     constructor(private readonly noteService: NoteService) {}
 
-    @Get('/draft')
+    @Get('/me/draft')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get draft note successfully!')
     public async getDraftNoteByUserId(@Client() clientData: ClientData) {
         return await this.noteService.getDraftNoteByUserId(clientData);
     }
 
-    @Get()
+    @Get('/me')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get note successfully!')
     public async getNoteByUserId(@Client() clientData: ClientData) {
@@ -68,5 +71,25 @@ export class NoteController {
         @Param('id') id: string,
     ) {
         return await this.noteService.deleteNote(clientData, id);
+    }
+
+    @Patch('/:id')
+    @UseInterceptors(FileInterceptor('attachFile'))
+    @HttpCode(HttpStatus.OK)
+    @ResponseMessage('Update note successfully!')
+    public async updateNote(
+        @Client() clientData: ClientData,
+        @Param('id') id: string,
+        @Body() payload: CreateNoteDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        return await this.noteService.updateNote(clientData, id, payload, file);
+    }
+
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @ResponseMessage('Get all public successfully!')
+    public async getNote(@Query() queryParams: GetNoteDataQuery) {
+        return await this.noteService.getAllPublicNote(queryParams);
     }
 }

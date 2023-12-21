@@ -1,13 +1,14 @@
 import { CommonEntity } from 'src/commons/entities';
-import { Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 import { Note } from './note.entity';
+import { ObjectId } from 'mongodb';
 
 @Entity({ name: 'user_favourite_note' })
 export class UserFavouriteNote extends CommonEntity {
-    @ManyToOne(() => User, (user) => user.user_favourite_note)
+    @Column((type) => User)
     user: User;
 
-    @ManyToOne(() => Note, (note) => note.user_favourite_note)
+    @Column((type) => Note)
     note: Note;
 }

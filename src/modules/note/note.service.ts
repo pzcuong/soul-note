@@ -3,16 +3,57 @@ import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { NoteModel } from 'src/models/note.model';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { post_status } from 'src/commons/role';
-import { ObjectId } from 'mongodb';
 import * as mongodb from 'mongodb';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { GetNoteDataQuery } from './dto/query-param.dto';
+import { UserModel } from 'src/models/user.model';
 
 @Injectable()
 export class NoteService {
     constructor(
         private readonly noteModel: NoteModel,
         private readonly cloudinaryService: CloudinaryService,
+        private readonly userModel: UserModel,
     ) {}
+
+    async getAllPublicNote(queryParams: GetNoteDataQuery) {
+        const { _page, _pageSize } = queryParams;
+        const pagination = this.noteModel.getPagination({
+            _page,
+            _pageSize,
+        });
+
+        const notes = (await this.noteModel.repository.find({
+            where: {
+                status: post_status.PUBLIC,
+            },
+            order: {
+                created_at: 'DESC',
+            },
+            ...pagination,
+        })) as any;
+
+        const userIds = notes
+            .map((note) => new mongodb.ObjectId(note.user_id?._id))
+            .filter((id) => id !== undefined);
+
+        const users = await this.userModel.repository.find({
+            select: ['full_name', 'username'],
+            where: {
+                _id: {
+                    $in: userIds,
+                },
+            },
+        });
+
+        notes.forEach((note) => {
+            note.user = users.find((user) =>
+                user._id.equals(note.user_id?._id),
+            );
+        });
+
+        return notes;
+    }
 
     async getDraftNoteByUserId(clientData: ClientData) {
         const note = await this.noteModel.repository.findOne({
@@ -115,8 +156,9 @@ export class NoteService {
 
     async updateNote(
         clientData: ClientData,
-        noteId: ObjectId,
+        noteId: string,
         payload: CreateNoteDto,
+        file?: Express.Multer.File,
     ) {
         const note = await this.noteModel.repository.findOne({
             where: {
@@ -129,8 +171,15 @@ export class NoteService {
 
         if (!note) throw new Error('Note not found');
 
+        const uploadResult = file
+            ? await this.cloudinaryService.uploadFile(file).then((result) => {
+                  return result.secure_url;
+              })
+            : note.image;
+
         const updateResult = await this.noteModel.repository.save({
             ...payload,
+            image: uploadResult,
             ...note,
         });
 

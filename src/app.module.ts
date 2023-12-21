@@ -13,6 +13,7 @@ import { RolesGuard } from './guards/role.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { NoteModule } from './modules/note/note.module';
+import { FavouriteModule } from './modules/favourite/favourite.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { NoteModule } from './modules/note/note.module';
         AuthModule,
         EncryptionsModule,
         NoteModule,
+        FavouriteModule,
     ],
     providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },
