@@ -120,9 +120,9 @@ export class NoteService {
             : isExistDraft.image;
 
         const createResult = await this.noteModel.repository.save({
-            image: uploadResult,
             ...isExistDraft,
             ...payload,
+            image: uploadResult,
         });
 
         return createResult;
