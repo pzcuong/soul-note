@@ -45,3 +45,6 @@ yarn.lock
 
 # Local Netlify folder
 .netlify
+
+
+build.bat
