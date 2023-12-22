@@ -20,8 +20,12 @@ import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetNoteDataQuery } from './dto/query-param.dto';
+import { User } from '@sentry/node';
+import { Note } from 'src/models/entities/note.entity';
+import { SentryInterceptor } from 'src/commons/sentry.filter';
 
 @Controller('note')
+@UseInterceptors(SentryInterceptor)
 @UseInterceptors(ResTransformInterceptor)
 export class NoteController {
     constructor(private readonly noteService: NoteService) {}
@@ -89,7 +93,13 @@ export class NoteController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get all public successfully!')
-    public async getNote(@Query() queryParams: GetNoteDataQuery) {
+    public async getNote(
+        @Query() queryParams: GetNoteDataQuery,
+    ): Promise<NoteWithUser[]> {
         return await this.noteService.getAllPublicNote(queryParams);
     }
+}
+
+export interface NoteWithUser extends Note {
+    user?: User;
 }

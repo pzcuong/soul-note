@@ -23,10 +23,8 @@ export class Note extends CommonEntity {
     })
     status: post_status;
 
-    @ManyToOne(() => User, (user) => user.note)
-    user: User;
-    @Column({ name: 'user_id', type: 'string' })
-    user_id: ObjectId;
+    @Column({ type: 'string' })
+    owner_id: ObjectId;
 
     @ManyToOne(
         () => UserFavouriteNote,

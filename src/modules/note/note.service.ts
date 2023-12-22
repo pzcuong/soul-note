@@ -7,6 +7,7 @@ import * as mongodb from 'mongodb';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { GetNoteDataQuery } from './dto/query-param.dto';
 import { UserModel } from 'src/models/user.model';
+import { NoteWithUser } from './note.controller';
 
 @Injectable()
 export class NoteService {
@@ -26,15 +27,18 @@ export class NoteService {
         const notes = (await this.noteModel.repository.find({
             where: {
                 status: post_status.PUBLIC,
+                owner_id: {
+                    $ne: null,
+                },
             },
             order: {
                 created_at: 'DESC',
             },
             ...pagination,
-        })) as any;
+        })) as NoteWithUser[];
 
         const userIds = notes
-            .map((note) => new mongodb.ObjectId(note.user_id?._id))
+            .map((note) => new mongodb.ObjectId(note.owner_id))
             .filter((id) => id !== undefined);
 
         const users = await this.userModel.repository.find({
@@ -47,9 +51,7 @@ export class NoteService {
         });
 
         notes.forEach((note) => {
-            note.user = users.find((user) =>
-                user._id.equals(note.user_id?._id),
-            );
+            note.user = users.find((user) => user._id.equals(note.owner_id));
         });
 
         return notes;
@@ -92,11 +94,15 @@ export class NoteService {
         payload: CreateNoteDto,
         file?: Express.Multer.File,
     ) {
+        const uploadResult = file
+            ? await this.cloudinaryService.uploadFile(file).then((result) => {
+                  return result.secure_url;
+              })
+            : null;
+
         let isExistDraft = await this.noteModel.repository.findOne({
             where: {
-                user: {
-                    _id: clientData.id,
-                },
+                owner_id: clientData.id,
                 status: post_status.DRAFT,
             },
             order: {
@@ -104,34 +110,14 @@ export class NoteService {
             },
         });
 
-        console.log(isExistDraft);
-        console.log(file);
-
         if (!isExistDraft)
             isExistDraft = await this.noteModel.repository.save({
                 ...payload,
-                user: {
-                    _id: clientData.id,
-                },
-                status: post_status.DRAFT,
+                ...(file ? { image: uploadResult } : {}),
+                owner_id: clientData.id,
             });
 
-        const uploadResult = file
-            ? await this.cloudinaryService.uploadFile(file).then((result) => {
-                  console.log(result);
-                  return result.secure_url;
-              })
-            : isExistDraft.image;
-
-        console.log(uploadResult);
-
-        const createResult = await this.noteModel.repository.save({
-            ...isExistDraft,
-            ...payload,
-            image: uploadResult,
-        });
-
-        return createResult;
+        return isExistDraft;
     }
 
     async publicDraftNote(clientData: ClientData) {

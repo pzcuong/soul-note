@@ -1,11 +1,22 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { json, urlencoded } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import * as Sentry from '@sentry/node';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
+    Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        integrations: [
+            new Sentry.Integrations.Http({ tracing: true }),
+            new Sentry.Integrations.OnUncaughtException(),
+            new Sentry.Integrations.OnUnhandledRejection(),
+        ],
+        tracesSampleRate: 1.0,
+    });
 
     const configService = app.get(ConfigService);
 
@@ -34,6 +45,7 @@ async function bootstrap() {
             },
         }),
     );
+
     app.use(json({ limit: '6mb' }));
     app.use(urlencoded({ extended: true, limit: '6mb' }));
     await app.listen(API_PORT);
