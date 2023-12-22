@@ -42,3 +42,6 @@ src/utils/testConnectionDb.ts
 
 .vercel
 yarn.lock
+
+# Local Netlify folder
+.netlify

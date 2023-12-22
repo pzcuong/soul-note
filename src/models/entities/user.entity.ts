@@ -24,9 +24,6 @@ export class User extends CommonEntity {
     @Column({ name: 'date_of_birth', type: 'date' })
     date_of_birth: Date;
 
-    @OneToMany(() => Note, (note) => note.user)
-    note: Note[];
-
     @OneToMany(
         () => UserFavouriteNote,
         (user_favourite_note) => user_favourite_note.user,
