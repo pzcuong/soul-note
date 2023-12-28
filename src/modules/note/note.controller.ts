@@ -60,7 +60,7 @@ export class NoteController {
         );
     }
 
-    @Post('/publish')
+    @Post('/public')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Public draft note successfully!')
     public async publicDraftNote(@Client() clientData: ClientData) {
