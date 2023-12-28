@@ -60,16 +60,13 @@ export class NoteService {
     async getDraftNoteByUserId(clientData: ClientData) {
         const note = await this.noteModel.repository.findOne({
             where: {
-                user: {
-                    _id: clientData.id,
-                },
+                owner_id: clientData.id,
                 status: post_status.DRAFT,
             },
             order: {
                 created_at: 'DESC',
             },
         });
-
         return note;
     }
 
@@ -110,14 +107,27 @@ export class NoteService {
             },
         });
 
-        if (!isExistDraft)
+        if (!isExistDraft) {
             isExistDraft = await this.noteModel.repository.save({
                 ...payload,
                 ...(file ? { image: uploadResult } : {}),
                 owner_id: clientData.id,
+                status: post_status.DRAFT,
             });
-
-        return isExistDraft;
+            return isExistDraft;
+        }
+        const draftNote = await this.noteModel.repository.update(
+            {
+                _id: isExistDraft._id,
+            },
+            {
+                ...payload,
+                ...(file ? { image: uploadResult } : {}),
+                owner_id: clientData.id,
+                status: post_status.DRAFT,
+            },
+        );
+        return draftNote;
     }
 
     async publicDraftNote(clientData: ClientData) {
@@ -196,5 +206,45 @@ export class NoteService {
         });
 
         return true;
+    }
+
+    async createPublicNote(
+        clientData: ClientData,
+        payload: CreateNoteDto,
+        file?: Express.Multer.File,
+    ) {
+        const uploadResult = file
+            ? await this.cloudinaryService.uploadFile(file).then((result) => {
+                  return result.secure_url;
+              })
+            : null;
+
+        const note = await this.noteModel.repository.save({
+            ...payload,
+            ...(file ? { image: uploadResult } : {}),
+            owner_id: clientData.id,
+            status: post_status.PUBLIC,
+        });
+
+        const draftNote = await this.noteModel.repository.findOne({
+            where: {
+                owner_id: clientData.id,
+                status: post_status.DRAFT,
+            },
+            order: {
+                created_at: 'DESC',
+            },
+        });
+
+        if (draftNote) {
+            await this.noteModel.repository.save({
+                title: '',
+                content: '',
+                owner_id: clientData.id,
+                status: post_status.DRAFT,
+            });
+        }
+
+        return note;
     }
 }

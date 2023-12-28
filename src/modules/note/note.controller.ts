@@ -67,7 +67,22 @@ export class NoteController {
         return await this.noteService.publicDraftNote(clientData);
     }
 
-    @Delete('/:id')
+    @Post('/create-public')
+    @UseInterceptors(FileInterceptor('attachFile'))
+    @HttpCode(HttpStatus.CREATED)
+    @ResponseMessage('Create/update note successfully!')
+    public async createPublicNote(
+        @Client() clientData: ClientData,
+        @Body() payload: CreateNoteDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        return await this.noteService.createPublicNote(
+            clientData,
+            payload,
+            file,
+        );
+    }
+
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Delete note successfully!')
     public async deleteDraftNote(
