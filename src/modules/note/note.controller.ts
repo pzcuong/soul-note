@@ -60,13 +60,6 @@ export class NoteController {
         );
     }
 
-    @Post('/public')
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('Public draft note successfully!')
-    public async publicDraftNote(@Client() clientData: ClientData) {
-        return await this.noteService.publicDraftNote(clientData);
-    }
-
     @Post('/create-public')
     @UseInterceptors(FileInterceptor('attachFile'))
     @HttpCode(HttpStatus.CREATED)

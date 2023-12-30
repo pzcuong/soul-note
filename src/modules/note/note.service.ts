@@ -130,33 +130,6 @@ export class NoteService {
         return draftNote;
     }
 
-    async publicDraftNote(clientData: ClientData) {
-        const note = await this.noteModel.repository.findOne({
-            where: {
-                user: {
-                    _id: clientData.id,
-                },
-                status: post_status.DRAFT,
-            },
-            order: {
-                created_at: 'DESC',
-            },
-        });
-
-        if (!note) throw new Error('Note not found');
-
-        await this.noteModel.repository.update(
-            {
-                _id: note._id,
-            },
-            {
-                status: post_status.PUBLIC,
-            },
-        );
-
-        return true;
-    }
-
     async updateNote(
         clientData: ClientData,
         noteId: string,
