@@ -14,6 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { NoteModule } from './modules/note/note.module';
 import { FavouriteModule } from './modules/favourite/favourite.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
     imports: [
@@ -37,6 +38,7 @@ import { FavouriteModule } from './modules/favourite/favourite.module';
         EncryptionsModule,
         NoteModule,
         FavouriteModule,
+        CommentModule,
     ],
     providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },

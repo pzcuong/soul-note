@@ -5,7 +5,7 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { post_status } from 'src/commons/role';
 import * as mongodb from 'mongodb';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { GetNoteDataQuery } from './dto/query-param.dto';
+import { GetNoteById, GetNoteDataQuery } from './dto/query-param.dto';
 import { UserModel } from 'src/models/user.model';
 import { NoteWithUser } from './note.controller';
 
@@ -55,6 +55,24 @@ export class NoteService {
         });
 
         return notes;
+    }
+    async getNoteById(note_id: string, clientData: ClientData) {
+        const note = (await this.noteModel.repository.findOne({
+            where: {
+                _id: new mongodb.ObjectId(note_id),
+            },
+        })) as NoteWithUser;
+        if (!note) throw new Error('Note not found');
+        const userInfor = await this.userModel.repository.findOne({
+            select: ['full_name', 'username'],
+            where: {
+                _id: new mongodb.ObjectId(clientData.id),
+            },
+        });
+
+        note.user = userInfor;
+
+        return note;
     }
 
     async getDraftNoteByUserId(clientData: ClientData) {
@@ -210,11 +228,8 @@ export class NoteService {
         });
 
         if (draftNote) {
-            await this.noteModel.repository.save({
-                title: '',
-                content: '',
-                owner_id: clientData.id,
-                status: post_status.DRAFT,
+            await this.noteModel.repository.delete({
+                _id: draftNote._id,
             });
         }
 

@@ -19,7 +19,7 @@ import { Client } from 'src/commons/decorators';
 import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GetNoteDataQuery } from './dto/query-param.dto';
+import { GetNoteDataQuery, GetNoteById } from './dto/query-param.dto';
 import { User } from '@sentry/node';
 import { Note } from 'src/models/entities/note.entity';
 import { SentryInterceptor } from 'src/commons/sentry.filter';
@@ -42,6 +42,16 @@ export class NoteController {
     @ResponseMessage('Get note successfully!')
     public async getNoteByUserId(@Client() clientData: ClientData) {
         return await this.noteService.getNoteByUserId(clientData);
+    }
+
+    @Get('/:note_id')
+    @HttpCode(HttpStatus.OK)
+    @ResponseMessage('Get note by id successfully!')
+    public async GetNoteById(
+        @Client() clientData: ClientData,
+        @Param('note_id') note_id: string,
+    ) {
+        return await this.noteService.getNoteById(note_id, clientData);
     }
 
     @Post()

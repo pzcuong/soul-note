@@ -1,6 +1,6 @@
 import { IsNumberString, IsOptional } from 'class-validator';
 
-export class GetNoteDataQuery {
+export class GetCommentDataQuery {
     @IsNumberString()
     @IsOptional()
     _page?: string;
@@ -8,9 +8,4 @@ export class GetNoteDataQuery {
     @IsNumberString()
     @IsOptional()
     _pageSize?: string;
-}
-
-export class GetNoteById {
-    @IsNumberString()
-    note_id: string;
 }

@@ -1,7 +1,6 @@
 import { CommonEntity } from 'src/commons/entities';
 import { post_status } from 'src/commons/role';
 import { Column, Entity, ManyToOne, ObjectId } from 'typeorm';
-import { User } from './user.entity';
 import { UserFavouriteNote } from './user-favourite-note.entity';
 
 @Entity({ name: 'note' })
