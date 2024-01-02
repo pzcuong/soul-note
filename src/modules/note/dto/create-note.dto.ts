@@ -6,11 +6,9 @@ export class CreateNoteDto {
     @IsString()
     title: string;
 
-    @IsOptional()
     @IsString()
     content: string;
 
-    @IsOptional()
     @IsString()
     status: post_status;
 }

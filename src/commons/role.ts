@@ -6,4 +6,5 @@ export enum user_role {
 export enum post_status {
     PUBLIC = 'PUBLIC',
     DRAFT = 'DRAFT',
+    PRIVATE = 'PRIVATE',
 }
