@@ -22,7 +22,12 @@ import { Comment } from './models/entities/comment.enity';
             isGlobal: true,
         }),
         WinstonModule.forRoot({}),
-        ThrottlerModule.forRoot({ ttl: 10, limit: 100 }),
+        ThrottlerModule.forRoot([
+            {
+                ttl: 60000,
+                limit: 10,
+            },
+        ]),
         JoiPipeModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mongodb',
