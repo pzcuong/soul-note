@@ -11,7 +11,7 @@
     "scripts": {
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-        "start": "nest start",
+        "start": "node dist/main",
         "dev": "cross-env NODE_ENV=development nest start -w",
         "debug": "nest start --debug --watch",
         "staging": "cross-env NODE_ENV=staging node dist/src/main",
