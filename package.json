@@ -60,7 +60,7 @@
         "joi": "^17.10.0",
         "lodash": "^4.17.21",
         "mailgun.js": "^9.2.1",
-        "mongodb": "^6.3.0",
+        "mongodb": "^5.2.0",
         "nest-winston": "^1.9.4",
         "nestjs-form-data": "^1.9.1",
         "nestjs-joi": "^1.9.0",
