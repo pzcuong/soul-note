@@ -15,7 +15,7 @@ import { EncryptionsModule } from './modules/encryptions/encryptions.module';
 import { NoteModule } from './modules/note/note.module';
 import { FavouriteModule } from './modules/favourite/favourite.module';
 import { CommentModule } from './modules/comment/comment.module';
-
+import { Comment } from './models/entities/comment.enity';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -29,7 +29,7 @@ import { CommentModule } from './modules/comment/comment.module';
             url: process.env.MONGODB_URI,
             synchronize: true,
             useUnifiedTopology: true,
-            entities: ['dist/**/*.entity{.ts,.js}'],
+            entities: ['dist/**/*.entity{.ts,.js}', Comment],
         }),
 
         ModelsModule,

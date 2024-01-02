@@ -3,13 +3,13 @@ import { Column, Entity, ObjectId, ObjectIdColumn } from 'typeorm';
 
 @Entity({ name: 'comment' })
 export class Comment extends CommonEntity {
-    @Column({ type: 'string' })
+    @Column({ name: 'owner_note_id', type: 'string' })
     owner_note_id: ObjectId;
 
     @Column({ name: 'content', type: 'string' })
     content: string;
 
-    @Column({ type: 'string' })
+    @Column({ name: 'owner_user_id', type: 'string' })
     owner_user_id: ObjectId;
 
     @Column({ type: 'array' })
@@ -17,10 +17,7 @@ export class Comment extends CommonEntity {
 }
 
 @Entity({ name: 'comment_reply' })
-export class CommentReply {
-    @ObjectIdColumn()
-    id: ObjectId;
-
+export class CommentReply extends CommonEntity {
     @Column({ type: 'string' })
     owner_comment_id: string;
 
