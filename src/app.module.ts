@@ -18,7 +18,6 @@ import { CommentModule } from './modules/comment/comment.module';
 import { Comment } from './models/entities/comment.enity';
 import { LikeModule } from './modules/like/like.module';
 import { UserLikeNote } from './models/entities/user-like-note.enity';
-
 @Module({
     imports: [
         ConfigModule.forRoot({

@@ -13,3 +13,12 @@ export class CommentModel extends CommonModel {
         super();
     }
 }
+
+// export class CommentReplyModel extends CommonModel {
+//     constructor(
+//         @InjectRepository(CommentReply)
+//         public repository: MongoRepository<CommentReply>,
+//     ) {
+//         super();
+//     }
+// }

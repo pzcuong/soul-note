@@ -111,9 +111,7 @@ export class NoteController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get all public successfully!')
-    public async getNote(
-        @Query() queryParams: GetNoteDataQuery,
-    ): Promise<NoteWithUser[]> {
+    public async getNote(@Query() queryParams: GetNoteDataQuery) {
         return await this.noteService.getAllPublicNote(queryParams);
     }
 }

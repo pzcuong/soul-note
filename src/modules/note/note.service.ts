@@ -24,7 +24,7 @@ export class NoteService {
             _pageSize,
         });
 
-        const notes = (await this.noteModel.repository.find({
+        const [notes, count] = (await this.noteModel.repository.findAndCount({
             where: {
                 status: post_status.PUBLIC,
                 owner_id: {
@@ -35,7 +35,7 @@ export class NoteService {
                 created_at: 'DESC',
             },
             ...pagination,
-        })) as NoteWithUser[];
+        })) as [NoteWithUser[], number];
 
         const userIds = notes
             .map((note) => new mongodb.ObjectId(note.owner_id))
@@ -54,7 +54,10 @@ export class NoteService {
             note.user = users.find((user) => user._id.equals(note.owner_id));
         });
 
-        return notes;
+        return {
+            notes,
+            count,
+        };
     }
     async getNoteById(note_id: string, clientData: ClientData) {
         const note = (await this.noteModel.repository.findOne({
