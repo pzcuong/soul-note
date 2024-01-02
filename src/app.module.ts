@@ -16,6 +16,8 @@ import { NoteModule } from './modules/note/note.module';
 import { FavouriteModule } from './modules/favourite/favourite.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { Comment } from './models/entities/comment.enity';
+import { LikeModule } from './modules/like/like.module';
+import { UserLikeNote } from './models/entities/user-like-note.enity';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -29,7 +31,7 @@ import { Comment } from './models/entities/comment.enity';
             url: process.env.MONGODB_URI,
             synchronize: true,
             useUnifiedTopology: true,
-            entities: ['dist/**/*.entity{.ts,.js}', Comment],
+            entities: ['dist/**/*.entity{.ts,.js}', Comment, UserLikeNote],
         }),
 
         ModelsModule,
@@ -39,6 +41,7 @@ import { Comment } from './models/entities/comment.enity';
         NoteModule,
         FavouriteModule,
         CommentModule,
+        LikeModule,
     ],
     providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },
