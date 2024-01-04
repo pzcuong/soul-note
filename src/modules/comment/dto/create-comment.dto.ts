@@ -11,7 +11,7 @@ export class CreateCommentDTO {
 
     @IsOptional()
     @IsString()
-    tag_id: ObjectId;
+    tag_user_id: ObjectId;
 
     @IsString()
     content: string;

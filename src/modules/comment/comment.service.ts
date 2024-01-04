@@ -55,6 +55,25 @@ export class CommentService {
                 (reply) => reply.parent_id == rootComment._id,
             );
         });
+
+        for (const comment of rootComments) {
+            for (const reply of comment.replies) {
+                if (reply.tag_user_id) {
+                    const userInfor = await this.userModel.repository.findOne({
+                        where: {
+                            _id: new ObjectId(reply.tag_user_id),
+                        },
+                    });
+                    reply.tagUser = {
+                        _id: userInfor._id,
+                        full_name: userInfor.full_name,
+                        username: userInfor.username,
+                        email: userInfor.email,
+                    };
+                }
+            }
+        }
+
         return rootComments;
     }
 

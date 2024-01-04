@@ -14,4 +14,7 @@ export class Comment extends CommonEntity {
 
     @Column({ name: 'parent_id', type: 'string', nullable: true })
     parent_id?: ObjectId;
+
+    @Column({ name: 'tag_user_id', type: 'string', nullable: true })
+    tag_user_id?: ObjectId;
 }
