@@ -1,8 +1,8 @@
 import { CommonEntity } from 'src/commons/entities';
 import { user_role } from 'src/commons/role';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { Note } from './note.entity';
 import { UserFavouriteNote } from './user-favourite-note.entity';
+import { ObjectId } from 'mongodb';
 
 @Entity({ name: 'user' })
 export class User extends CommonEntity {
@@ -29,4 +29,7 @@ export class User extends CommonEntity {
         (user_favourite_note) => user_favourite_note.user,
     )
     user_favourite_note: UserFavouriteNote[];
+
+    @Column({ nullable: true, array: true, type: 'string' })
+    follows: ObjectId[];
 }

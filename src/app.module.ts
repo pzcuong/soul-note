@@ -18,6 +18,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { Comment } from './models/entities/comment.enity';
 import { LikeModule } from './modules/like/like.module';
 import { UserLikeNote } from './models/entities/user-like-note.enity';
+import { FollowModule } from './modules/follow/follow.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -47,6 +48,7 @@ import { UserLikeNote } from './models/entities/user-like-note.enity';
         FavouriteModule,
         CommentModule,
         LikeModule,
+        FollowModule,
     ],
     providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },
