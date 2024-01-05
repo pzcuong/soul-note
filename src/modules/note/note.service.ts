@@ -214,13 +214,6 @@ export class NoteService {
               })
             : null;
 
-        const note = await this.noteModel.repository.save({
-            ...payload,
-            ...(file ? { image: uploadResult } : {}),
-            owner_id: clientData.id,
-            status: payload.status,
-        });
-
         const draftNote = await this.noteModel.repository.findOne({
             where: {
                 owner_id: clientData.id,
@@ -231,12 +224,12 @@ export class NoteService {
             },
         });
 
-        if (draftNote) {
-            await this.noteModel.repository.delete({
-                _id: draftNote._id,
-            });
-        }
-
-        return note;
+        return await this.noteModel.repository.save({
+            ...draftNote,
+            ...payload,
+            ...(file ? { image: uploadResult } : {}),
+            owner_id: clientData.id,
+            status: payload.status,
+        });
     }
 }
