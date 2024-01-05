@@ -18,13 +18,19 @@ import { CommentModule } from './modules/comment/comment.module';
 import { Comment } from './models/entities/comment.enity';
 import { LikeModule } from './modules/like/like.module';
 import { UserLikeNote } from './models/entities/user-like-note.enity';
+import { FollowModule } from './modules/follow/follow.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
         }),
         WinstonModule.forRoot({}),
-        ThrottlerModule.forRoot({ ttl: 10, limit: 100 }),
+        ThrottlerModule.forRoot([
+            {
+                ttl: 60000,
+                limit: 10,
+            },
+        ]),
         JoiPipeModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mongodb',
@@ -42,6 +48,7 @@ import { UserLikeNote } from './models/entities/user-like-note.enity';
         FavouriteModule,
         CommentModule,
         LikeModule,
+        FollowModule,
     ],
     providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },

@@ -25,6 +25,14 @@ export class ResTransformInterceptor<T>
     ): Observable<Response<T>> {
         return next.handle().pipe(
             map((data) => {
+                if (typeof data === 'object' && data?.message) {
+                    return {
+                        statusCode: context.switchToHttp().getResponse()
+                            .statusCode,
+                        ...data,
+                    };
+                }
+
                 return {
                     statusCode: context.switchToHttp().getResponse().statusCode,
                     message:

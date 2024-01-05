@@ -5,7 +5,7 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { post_status } from 'src/commons/role';
 import * as mongodb from 'mongodb';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { GetNoteById, GetNoteDataQuery } from './dto/query-param.dto';
+import { GetNoteDataQuery } from './dto/query-param.dto';
 import { UserModel } from 'src/models/user.model';
 import { NoteWithUser } from './note.controller';
 
@@ -59,6 +59,7 @@ export class NoteService {
             count,
         };
     }
+
     async getNoteById(note_id: string, clientData: ClientData) {
         const note = (await this.noteModel.repository.findOne({
             where: {

@@ -25,6 +25,9 @@ export class CommentService {
             where: {
                 owner_note_id: note_id,
             },
+            order: {
+                created_at: 'DESC',
+            },
         })) as CommentWithReplies[];
 
         const commentsWithUser = [];
