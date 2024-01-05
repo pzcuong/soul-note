@@ -23,6 +23,7 @@ import { GetNoteDataQuery, GetNoteById } from './dto/query-param.dto';
 import { User } from '@sentry/node';
 import { Note } from 'src/models/entities/note.entity';
 import { SentryInterceptor } from 'src/commons/sentry.filter';
+import { post_status } from 'src/commons/role';
 
 @Controller('note')
 @UseInterceptors(SentryInterceptor)
@@ -40,8 +41,11 @@ export class NoteController {
     @Get('/me')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get note successfully!')
-    public async getNoteByUserId(@Client() clientData: ClientData) {
-        return await this.noteService.getNoteByUserId(clientData);
+    public async getNoteByUserId(
+        @Client() clientData: ClientData,
+        @Query('type') type: post_status | null,
+    ) {
+        return await this.noteService.getNoteByUserId(clientData, type);
     }
 
     @Get('/:note_id')
@@ -70,20 +74,16 @@ export class NoteController {
         );
     }
 
-    @Post('/create-public')
+    @Post('/create-note')
     @UseInterceptors(FileInterceptor('attachFile'))
     @HttpCode(HttpStatus.CREATED)
     @ResponseMessage('Create/update note successfully!')
-    public async createPublicNote(
+    public async createNote(
         @Client() clientData: ClientData,
         @Body() payload: CreateNoteDto,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        return await this.noteService.createPublicNote(
-            clientData,
-            payload,
-            file,
-        );
+        return await this.noteService.createNote(clientData, payload, file);
     }
 
     @HttpCode(HttpStatus.OK)

@@ -91,19 +91,19 @@ export class NoteService {
         return note;
     }
 
-    async getNoteByUserId(clientData: ClientData) {
+    async getNoteByUserId(clientData: ClientData, type: post_status | null) {
         const note = await this.noteModel.repository.find({
             where: {
-                user: {
-                    _id: clientData.id,
-                },
-                status: post_status.PUBLIC,
+                owner_id: clientData.id,
+                status:
+                    type && type.length
+                        ? type
+                        : { $in: [post_status.PUBLIC, post_status.PRIVATE] },
             },
             order: {
                 created_at: 'DESC',
             },
         });
-
         return note;
     }
 
@@ -202,7 +202,7 @@ export class NoteService {
         return true;
     }
 
-    async createPublicNote(
+    async createNote(
         clientData: ClientData,
         payload: CreateNoteDto,
         file?: Express.Multer.File,
@@ -217,7 +217,7 @@ export class NoteService {
             ...payload,
             ...(file ? { image: uploadResult } : {}),
             owner_id: clientData.id,
-            status: post_status.PUBLIC,
+            status: payload.status,
         });
 
         const draftNote = await this.noteModel.repository.findOne({

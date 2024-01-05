@@ -9,6 +9,10 @@ export class CreateCommentDTO {
     @IsString()
     parent_id: ObjectId;
 
+    @IsOptional()
+    @IsString()
+    tag_user_id: ObjectId;
+
     @IsString()
     content: string;
 }

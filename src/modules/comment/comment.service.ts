@@ -3,11 +3,15 @@ import { ClientData } from 'src/decorators/get_current_user.decorator';
 import { CreateCommentDTO, UpdateCommentDTO } from './dto/create-comment.dto';
 import { CommentModel } from 'src/models/comment.model';
 import { CommentWithReplies } from './comment.controller';
+import { UserModel } from 'src/models/user.model';
 import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class CommentService {
-    constructor(private readonly commentModel: CommentModel) {}
+    constructor(
+        private readonly commentModel: CommentModel,
+        private readonly userModel: UserModel,
+    ) {}
 
     async createComment(clientData: ClientData, payload: CreateCommentDTO) {
         return await this.commentModel.repository.save({
@@ -23,14 +27,52 @@ export class CommentService {
             },
         })) as CommentWithReplies[];
 
-        const rootComments = comments.filter((comment) => !comment.parent_id);
-        const replies = comments.filter((comment) => comment.parent_id);
+        const commentsWithUser = [];
+
+        for (const comment of comments) {
+            const user = await this.userModel.repository.findOne({
+                where: {
+                    _id: new ObjectId(comment.owner_user_id),
+                },
+            });
+            commentsWithUser.push({
+                ...comment,
+                user: {
+                    _id: user._id,
+                    full_name: user.full_name,
+                    username: user.username,
+                    email: user.email,
+                },
+            });
+        }
+        const rootComments = commentsWithUser.filter(
+            (comment) => !comment.parent_id,
+        );
+        const replies = commentsWithUser.filter((comment) => comment.parent_id);
 
         rootComments.forEach((rootComment) => {
             rootComment.replies = replies.filter(
                 (reply) => reply.parent_id == rootComment._id,
             );
         });
+
+        for (const comment of rootComments) {
+            for (const reply of comment.replies) {
+                if (reply.tag_user_id) {
+                    const userInfor = await this.userModel.repository.findOne({
+                        where: {
+                            _id: new ObjectId(reply.tag_user_id),
+                        },
+                    });
+                    reply.tagUser = {
+                        _id: userInfor._id,
+                        full_name: userInfor.full_name,
+                        username: userInfor.username,
+                        email: userInfor.email,
+                    };
+                }
+            }
+        }
 
         return rootComments;
     }
