@@ -8,6 +8,9 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { GetNoteDataQuery } from './dto/query-param.dto';
 import { UserModel } from 'src/models/user.model';
 import { NoteWithUser } from './note.controller';
+import { UserLikeNoteModel } from 'src/models/user-like-note.model';
+import { CommentModel } from 'src/models/comment.model';
+import { UserFavouriteNoteModel } from 'src/models/user-favourite-note.model';
 
 @Injectable()
 export class NoteService {
@@ -15,9 +18,68 @@ export class NoteService {
         private readonly noteModel: NoteModel,
         private readonly cloudinaryService: CloudinaryService,
         private readonly userModel: UserModel,
+        private readonly likeModel: UserLikeNoteModel,
+        private readonly commentModel: CommentModel,
+        private readonly favouriteModel: UserFavouriteNoteModel,
     ) {}
 
-    async getAllPublicNote(queryParams: GetNoteDataQuery) {
+    async getDetailNote(notes: NoteWithUser[], clientData: ClientData) {
+        const likeStatus = await this.likeModel.repository.find({
+            where: {
+                'note._id': {
+                    $in: notes.map((note) => new mongodb.ObjectId(note._id)),
+                },
+            },
+        });
+
+        notes.forEach((note) => {
+            note.likeCount = likeStatus.filter((like) =>
+                like.note._id.equals(note._id),
+            ).length;
+            note.isLike = likeStatus.some(
+                (like) =>
+                    like.user._id === clientData.id &&
+                    like.note._id.equals(note._id),
+            );
+        });
+
+        const commentStatus = await this.commentModel.repository.find({
+            where: {
+                owner_note_id: {
+                    $in: notes.map((note) => note._id.toString()),
+                },
+            },
+        });
+
+        notes.forEach((note) => {
+            note.commentCount = commentStatus.filter(
+                (comment) => comment.owner_note_id == note._id,
+            ).length;
+        });
+
+        const favouriteStatus = await this.favouriteModel.repository.find({
+            where: {
+                'note._id': {
+                    $in: notes.map((note) => new mongodb.ObjectId(note._id)),
+                },
+            },
+        });
+
+        notes.forEach((note) => {
+            note.isFavourite = favouriteStatus.some(
+                (favourite) =>
+                    favourite.user._id === clientData.id &&
+                    favourite.note._id.equals(note._id),
+            );
+        });
+
+        return notes;
+    }
+
+    async getAllPublicNote(
+        queryParams: GetNoteDataQuery,
+        clientData: ClientData,
+    ) {
         const { _page, _pageSize } = queryParams;
         const pagination = this.noteModel.getPagination({
             _page,
@@ -54,6 +116,8 @@ export class NoteService {
             note.user = users.find((user) => user._id.equals(note.owner_id));
         });
 
+        await this.getDetailNote(notes, clientData);
+
         return {
             notes,
             count,
@@ -70,11 +134,12 @@ export class NoteService {
         const userInfor = await this.userModel.repository.findOne({
             select: ['full_name', 'username'],
             where: {
-                _id: new mongodb.ObjectId(clientData.id),
+                _id: new mongodb.ObjectId(note.owner_id),
             },
         });
 
         note.user = userInfor;
+        await this.getDetailNote([note], clientData);
 
         return note;
     }
@@ -92,8 +157,18 @@ export class NoteService {
         return note;
     }
 
-    async getNoteByUserId(clientData: ClientData, type: post_status | null) {
-        const note = await this.noteModel.repository.find({
+    async getNoteByUserId(
+        queryParams: GetNoteDataQuery,
+        clientData: ClientData,
+        type: post_status | null,
+    ) {
+        const { _page, _pageSize } = queryParams;
+        const pagination = this.noteModel.getPagination({
+            _page,
+            _pageSize,
+        });
+
+        const [notes, count] = await this.noteModel.repository.findAndCount({
             where: {
                 owner_id: clientData.id,
                 status:
@@ -104,8 +179,15 @@ export class NoteService {
             order: {
                 created_at: 'DESC',
             },
+            ...pagination,
         });
-        return note;
+
+        await this.getDetailNote(notes, clientData);
+
+        return {
+            notes,
+            count,
+        };
     }
 
     async createDraftNote(
