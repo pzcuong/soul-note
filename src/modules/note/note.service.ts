@@ -161,9 +161,7 @@ export class NoteService {
         const note = await this.noteModel.repository.findOne({
             where: {
                 _id: new mongodb.ObjectId(noteId),
-                user: {
-                    id: clientData.id,
-                },
+                owner_id: clientData.id,
             },
         });
 
