@@ -20,4 +20,19 @@ export class CloudinaryService {
             streamifier.createReadStream(file.buffer).pipe(uploadStream);
         });
     }
+
+    deleteFile(url: string): Promise<CloudinaryResponse> {
+        const public_id = url.match(/\/upload\/v\d+\/(.+)\./)[1];
+
+        return new Promise<CloudinaryResponse>((resolve, reject) => {
+            cloudinary.uploader.destroy(
+                public_id,
+                { invalidate: true },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                },
+            );
+        });
+    }
 }

@@ -86,6 +86,7 @@ export class NoteController {
         return await this.noteService.createNote(clientData, payload, file);
     }
 
+    @Delete('/:id')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Delete note successfully!')
     public async deleteDraftNote(
