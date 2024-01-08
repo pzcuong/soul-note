@@ -44,8 +44,13 @@ export class NoteController {
     public async getNoteByUserId(
         @Client() clientData: ClientData,
         @Query('type') type: post_status | null,
+        @Query() queryParams: GetNoteDataQuery,
     ) {
-        return await this.noteService.getNoteByUserId(clientData, type);
+        return await this.noteService.getNoteByUserId(
+            queryParams,
+            clientData,
+            type,
+        );
     }
 
     @Get('/:note_id')
@@ -112,11 +117,18 @@ export class NoteController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Get all public successfully!')
-    public async getNote(@Query() queryParams: GetNoteDataQuery) {
-        return await this.noteService.getAllPublicNote(queryParams);
+    public async getNote(
+        @Query() queryParams: GetNoteDataQuery,
+        @Client() clientData: ClientData,
+    ) {
+        return await this.noteService.getAllPublicNote(queryParams, clientData);
     }
 }
 
 export interface NoteWithUser extends Note {
     user?: User;
+    likeCount?: number;
+    commentCount?: number;
+    isLike?: boolean;
+    isFavourite?: boolean;
 }
