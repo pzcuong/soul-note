@@ -188,13 +188,13 @@ export class NoteService {
         const note = await this.noteModel.repository.findOne({
             where: {
                 _id: new mongodb.ObjectId(noteId),
-                user: {
-                    _id: clientData.id,
-                },
+                owner_id: clientData.id,
             },
         });
 
         if (!note) throw new Error('Note not found');
+
+        note.image && (await this.cloudinaryService.deleteFile(note.image));
 
         await this.noteModel.repository.delete({
             _id: note._id,

@@ -11,8 +11,8 @@ export class Note extends CommonEntity {
     @Column({ name: 'content', type: 'string' })
     content: string;
 
-    @Column({ name: 'image', type: 'string', array: true, nullable: true })
-    image: string[];
+    @Column({ name: 'image', type: 'string', nullable: true })
+    image: string;
 
     @Column({
         name: 'status',
