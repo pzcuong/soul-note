@@ -161,9 +161,7 @@ export class NoteService {
         const note = await this.noteModel.repository.findOne({
             where: {
                 _id: new mongodb.ObjectId(noteId),
-                user: {
-                    id: clientData.id,
-                },
+                owner_id: clientData.id,
             },
         });
 
@@ -176,9 +174,9 @@ export class NoteService {
             : note.image;
 
         const updateResult = await this.noteModel.repository.save({
+            ...note,
             ...payload,
             image: uploadResult,
-            ...note,
         });
 
         return updateResult;
