@@ -174,9 +174,9 @@ export class NoteService {
             : note.image;
 
         const updateResult = await this.noteModel.repository.save({
+            ...note,
             ...payload,
             image: uploadResult,
-            ...note,
         });
 
         return updateResult;
