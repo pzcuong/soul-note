@@ -1,13 +1,12 @@
+import { ObjectId } from 'mongodb';
 import { CommonEntity } from 'src/commons/entities';
-import { Column, Entity, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
-import { Note } from './note.entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'user_like_note' })
 export class UserLikeNote extends CommonEntity {
-    @Column((type) => User)
-    user: User;
+    @Column({ type: 'string' })
+    user_id: ObjectId;
 
-    @Column((type) => Note)
-    note: Note;
+    @Column({ type: 'string' })
+    note_id: ObjectId;
 }

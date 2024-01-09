@@ -26,7 +26,7 @@ export class NoteService {
     async getDetailNote(notes: NoteWithUser[], clientData: ClientData) {
         const likeStatus = await this.likeModel.repository.find({
             where: {
-                'note._id': {
+                note_id: {
                     $in: notes.map((note) => new mongodb.ObjectId(note._id)),
                 },
             },
@@ -34,12 +34,12 @@ export class NoteService {
 
         notes.forEach((note) => {
             note.likeCount = likeStatus.filter((like) =>
-                like.note._id.equals(note._id),
+                like.note_id.equals(note._id),
             ).length;
             note.isLike = likeStatus.some(
                 (like) =>
-                    like.user._id === clientData.id &&
-                    like.note._id.equals(note._id),
+                    like.user_id === clientData.id &&
+                    like.note_id.equals(note._id),
             );
         });
 

@@ -14,13 +14,11 @@ export class LikeService {
     async getLikeNoteByUserId(clientData: ClientData) {
         const likeNotes = await this.likeNoteModel.repository.find({
             where: {
-                user: {
-                    _id: clientData.id,
-                },
+                user_id: clientData.id,
             },
         });
 
-        const noteIds = likeNotes.map((likeNote) => likeNote.note._id);
+        const noteIds = likeNotes.map((likeNote) => likeNote.note_id);
 
         const notes = await this.noteModel.repository.find({
             where: {
@@ -43,29 +41,20 @@ export class LikeService {
 
         const likeNote = await this.likeNoteModel.repository.findOne({
             where: {
-                user: {
-                    _id: clientData.id,
-                },
-                note: {
-                    _id: note._id,
-                },
+                user_id: clientData.id,
+                note_id: note._id,
             },
         });
-
+        console.log(likeNote);
         if (likeNote) {
             await this.likeNoteModel.repository.delete({
                 _id: likeNote._id,
             });
             throw new HttpException('Unlike success', 200);
         }
-
         await this.likeNoteModel.repository.save({
-            user: {
-                _id: clientData.id,
-            },
-            note: {
-                _id: new mongodb.ObjectId(noteId),
-            },
+            user_id: clientData.id,
+            note_id: note._id,
         });
 
         throw new HttpException('Like success', 200);
